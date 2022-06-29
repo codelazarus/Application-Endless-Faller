@@ -1,24 +1,51 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MainCharacter : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    void Start()
+    [SerializeField] private float movementSpeed;
+
+    private Rigidbody _rigidBody;
+    void Awake()
     {
-        
+        _rigidBody = GetComponent<Rigidbody>();
+        GameManager.Instance.player = this;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftArrow))
+        Movement();
+        IsGameOver();
+    }
+
+    private void OnTriggerEnter(Collider trigger)
+    {
+        if (trigger.name.Equals("PointTrigger"))
+            GameManager.Instance.OnScore();
+    }
+
+    private void IsGameOver()
+    {
+        if (LevelManager.isPlaying)
         {
-            transform.position += Vector3.left * speed;
-        } else if (Input.GetKey(KeyCode.RightArrow))
-        {
-            transform.position += Vector3.right * speed;
+            if (transform.position.y > 6)
+            {
+                GameManager.Instance.OnGameOver();
+            }
+            else if (transform.position.y < -5)
+            {
+                GameManager.Instance.OnGameOver();
+
+
+            }
         }
+    }
+
+    private void Movement()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow))
+            _rigidBody.AddForce(Vector2.left * Time.deltaTime * movementSpeed, ForceMode.Impulse);
+        else if (Input.GetKey(KeyCode.RightArrow))
+            _rigidBody.AddForce(Vector2.right * Time.deltaTime * movementSpeed, ForceMode.Impulse);
     }
 }
